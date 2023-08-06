@@ -59,5 +59,115 @@ async function logout(req, res) {
   res.status(200).json({ message: "Successfully logout" });
 }
 
-const userAuthenthication = { registerUser, login, logout };
+async function deactivateAccount(req, res) {
+  const userId = req.session.auth;
+  console.log("User Id:", userId);
+  try {
+    // Start a transaction
+    await query("BEGIN");
+
+    // UPDATE query to set the new salary in the "employees" table
+    const deleteUsersQuery = `
+      UPDATE users set deleted_at=CURRENT_TIMESTAMP WHERE id=$1
+    `;
+
+    const deleteUsersValues = [userId];
+    console.log("Hellow");
+    const deleteUsersResult = await query(deleteUsersQuery, deleteUsersValues);
+    console.log(deleteUsersResult);
+    deleteUsersResult;
+    // INSERT query to add the salary change to the "salary_audit_log" table
+
+    const deleteBlogQuery = `
+    UPDATE posts set deleted_at=CURRENT_TIMESTAMP WHERE author_id=$1
+    `;
+
+    const deleteBlogValues = [userId];
+    await query(deleteBlogQuery, deleteBlogValues);
+
+    const deleteCommentQuery = `UPDATE comments set deleted_at=CURRENT_TIMESTAMP WHERE user_id=$1`;
+    const deleteCommentValues = [userId];
+    await query(deleteCommentQuery, deleteCommentValues);
+
+    // Commit the transaction
+    await query("COMMIT");
+    // client.release();
+
+    // Send a response with the updated employee information
+    res.json({
+      message: "Your Account is deleted",
+      // data: deleteUsersResult.rows[0],
+    });
+  } catch (error) {
+    // Rollback the transaction in case of an error
+    await query("ROLLBACK");
+    // client.release();
+    res.status(500).json({ error: error });
+  }
+}
+
+async function adminPrivillegeDelete(req, res) {
+  let selected_user_id = req.body.id;
+  let current_timestamp = "CURRENT_TIMESTAMP";
+  deleteUser(res, selected_user_id, current_timestamp);
+}
+
+async function undoDelete(req, res) {
+  let selected_user_id = req.body.id;
+  let current_timestamp = "NULL";
+  deleteUser(res, selected_user_id, current_timestamp);
+}
+
+async function deleteUser(res, userId, params) {
+  try {
+    // Start a transaction
+    await query("BEGIN");
+
+    // UPDATE query to set the new salary in the "employees" table
+    const deleteUsersQuery = `
+      UPDATE users set deleted_at=${params} WHERE id=$1
+    `;
+
+    const deleteUsersValues = [userId];
+    // console.log("Hellow");
+    const deleteUsersResult = await query(deleteUsersQuery, deleteUsersValues);
+    console.log(deleteUsersResult);
+    deleteUsersResult;
+    // INSERT query to add the salary change to the "salary_audit_log" table
+
+    const deleteBlogQuery = `
+    UPDATE posts set deleted_at=${params} WHERE author_id=$1
+    `;
+
+    const deleteBlogValues = [userId];
+    await query(deleteBlogQuery, deleteBlogValues);
+
+    const deleteCommentQuery = `UPDATE comments set deleted_at=${params} WHERE user_id=$1`;
+    const deleteCommentValues = [userId];
+    await query(deleteCommentQuery, deleteCommentValues);
+
+    // Commit the transaction
+    await query("COMMIT");
+    // client.release();
+
+    // Send a response with the updated employee information
+    res.json({
+      message: `Account ${userId} is deleted`,
+      // data: deleteUsersResult.rows[0],
+    });
+  } catch (error) {
+    // Rollback the transaction in case of an error
+    await query("ROLLBACK");
+    // client.release();
+    res.status(500).json({ error: error });
+  }
+}
+
+const userAuthenthication = {
+  registerUser,
+  login,
+  logout,
+  deactivateAccount,
+  adminPrivillegeDelete,
+};
 export default userAuthenthication;

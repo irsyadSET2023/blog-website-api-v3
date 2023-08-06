@@ -17,7 +17,7 @@ async function getSingleUser(req, res) {
 }
 
 async function updateUser(req, res) {
-  const user = req.user;
+  const userId = req.session.auth;
   const body = req.body;
 
   const columns = [];
@@ -43,7 +43,7 @@ async function updateUser(req, res) {
   const queryStr = `UPDATE users SET ${columns.join(
     ", "
   )} WHERE id = $${paramIndex}`;
-  values.push(user.id);
+  values.push(userId);
   const data = query(queryStr, values);
   res.status(200).json({ message: "hello world", data });
 }

@@ -1,4 +1,3 @@
-import { async } from "regenerator-runtime";
 import query from "../../database";
 
 async function getAllComments(req, res) {
@@ -10,10 +9,17 @@ async function getAllComments(req, res) {
 async function postComments(req, res) {
   const userId = req.session.auth;
   const body = req.body;
+  const commentSlug =
+    "comment_" +
+    String(userId) +
+    "_" +
+    String(body.post_id) +
+    "_" +
+    String(Date.now());
 
   await query(
-    "INSERT INTO comments (post_id,user_id,comment_user) VALUES ($1,$2,$3)",
-    [body.post_id, userId, body.comment]
+    "INSERT INTO comments (post_id,user_id,comment_user,comment_slug) VALUES ($1,$2,$3,$4)",
+    [body.post_id, userId, body.comment, commentSlug]
   )
     .then(function (resDb) {
       res.status(200).json({ message: "A comment created" });
@@ -25,13 +31,12 @@ async function postComments(req, res) {
 
 async function deleteComments(req, res) {
   const userId = req.session.auth;
-  // const body = req.body;
-  const commentId = req.body.id;
+  const commentSlug = req.body.comment_slug;
 
-  await query("DELETE FROM comments WHERE user_id=$1 and id=$2", [
-    userId,
-    commentId,
-  ])
+  await query(
+    "UPDATE comments SET deleted_at=CURRENT_TIMESTAMP WHERE comment_slug=$1 AND user_id=$2",
+    [commentSlug, userId]
+  )
     .then(function (resDb) {
       res.status(200).json({ message: "A comment is deleted" });
     })
@@ -41,13 +46,13 @@ async function deleteComments(req, res) {
 }
 
 async function editComments(req, res) {
-  const userId = req.session.auth;
-  const blogId = req.body.post_id;
+  const commentSlug = req.body.comment_slug;
   const newComment = req.body.comment_user;
+  const userId = req.session.auth;
 
   await query(
-    "UPDATE comments SET comment_user=$1 WHERE post_id=$2 AND user_id=$3",
-    [newComment, blogId, userId]
+    "UPDATE comments SET comment_user=$1, updated_at=CURRENT_TIMESTAMP WHERE comment_slug=$2 and user_id=$3",
+    [newComment, commentSlug, userId]
   )
     .then(function (resDb) {
       res.status(200).json({ message: "Comment Edited" });
