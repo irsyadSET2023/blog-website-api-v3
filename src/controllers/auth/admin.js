@@ -2,6 +2,7 @@ import query from "../../database";
 
 async function deleteUser(req, res) {
   let selected_user_id = req.body.id;
+  checkUser(req, res, selected_user_id);
   let current_timestamp = "CURRENT_TIMESTAMP";
   let message = `Account ${selected_user_id} is deleted`;
   utilFunction(res, selected_user_id, current_timestamp, message);
@@ -9,6 +10,7 @@ async function deleteUser(req, res) {
 
 async function undoDeleteUser(req, res) {
   let selected_user_id = req.body.id;
+  checkUser(req, res, selected_user_id);
   let current_timestamp = "NULL";
   let message = `Restored Deleted Account ${selected_user_id}`;
   utilFunction(res, selected_user_id, current_timestamp, message);
@@ -57,6 +59,11 @@ async function utilFunction(res, userId, status, message) {
     // client.release();
     res.status(500).json({ error: error });
   }
+}
+
+function checkUser(req, res, selected_user_id) {
+  if (req.session.auth === selected_user_id)
+    res.status(404).json({ message: "You are in your account" });
 }
 
 const adminPrivillege = {

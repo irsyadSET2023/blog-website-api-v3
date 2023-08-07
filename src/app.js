@@ -8,6 +8,10 @@ import fourOhFour from "./middleware/fourOhFour";
 import root from "./routes/root";
 import apiRoutes from "./routes/api";
 import session from "express-session";
+import userRoutes from "./routes/users";
+import blogRoutes from "./routes/blogs";
+import commentsRoutes from "./routes/comments";
+import adminRoutes from "./routes/admin";
 
 const app = express();
 
@@ -35,7 +39,11 @@ app.use(
 
 // Apply routes before error handling
 app.use("/", root);
-app.use("/api", apiRoutes);
+// app.use("/api", apiRoutes);
+app.use("/users", userRoutes);
+app.use("/blogs", blogRoutes);
+app.use("/comments", commentsRoutes);
+app.use("/admin", adminRoutes);
 
 // Apply error handling last
 app.use(fourOhFour);

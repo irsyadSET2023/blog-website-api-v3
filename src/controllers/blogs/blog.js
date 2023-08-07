@@ -10,8 +10,12 @@ async function getAllBlog(req, res) {
 }
 
 async function getSingleBlog(req, res) {
-  let id = req.params.id;
-  const data = await query("SELECT * FROM posts WHERE id=$1", [id]);
+  // let id = req.params.id;
+  const slug = req.params.slug;
+  const data = await query(
+    "SELECT * FROM posts WHERE id=$1 AND deleted_at IS NOT NULL",
+    [slug]
+  );
   const blogs = data.rows;
   if (!blogs.length) {
     res.status(400).json({ message: "No Blogs Found" });
@@ -43,8 +47,9 @@ async function addBlog(req, res) {
 async function updateBlog(req, res) {
   const userId = req.session.auth;
   const body = req.body;
-  // const blogId = req.body.id;
   const blogSlug = req.body.slug;
+
+  console.log(typeof userId, " ", userId);
 
   const columns = [];
   const values = [];
@@ -90,12 +95,13 @@ async function updateBlog(req, res) {
 }
 
 async function deleteBlog(req, res) {
-  // const userId = req.session.auth;
+  const userId = req.session.auth;
   const blogSlug = req.body.slug;
   console.log(blogSlug);
-  await query("UPDATE posts SET deleted_at=CURRENT_TIMESTAMP WHERE slug=$1", [
-    blogSlug,
-  ])
+  await query(
+    "UPDATE posts SET deleted_at=CURRENT_TIMESTAMP WHERE slug=$1 AND author_id=$2",
+    [blogSlug, userId]
+  )
     .then(function (resDb) {
       res.status(200).json({ message: "Your post is deleted" });
     })

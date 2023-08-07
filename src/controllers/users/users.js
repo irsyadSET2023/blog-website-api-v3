@@ -8,9 +8,9 @@ async function getAllUsers(req, res) {
 }
 
 async function getSingleUser(req, res) {
-  const id = req.params.id;
-  console.log(id);
-  const data = await query("SELECT * FROM users WHERE id=$1", [id]);
+  const userName = req.params.username;
+  console.log(userName);
+  const data = await query("SELECT * FROM users WHERE id=$1", [userName]);
   const users = data.rows;
   console.log(users);
   res.status(200).json({ users });
