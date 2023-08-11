@@ -31,7 +31,7 @@ async function addBlog(req, res) {
   const slug =
     Math.random().toString(36).substring(2, 8) + "_" + String(dateTime);
   // const data = await query("SELECT * FROM posts WHERE title=$1", [body.title]);
-  console.log(data.rows, "Rows");
+  // console.log(data.rows, "Rows");
   // if (data.rows.length > 0) {
   //   res.status(403).json({
   //     message: "One user cannot has more than 1 blog that has same title",
