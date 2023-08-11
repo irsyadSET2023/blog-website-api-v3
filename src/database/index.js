@@ -9,6 +9,9 @@ const pool = new Pool({
   database: data.database,
   password: data.password,
   port: 5432,
+  ssl: {
+    rejectUnauthorized: false, // This allows self-signed certificates. Use a valid CA certificate in production.
+  },
 });
 
 async function query(text, params, callback) {
