@@ -30,8 +30,8 @@ async function addBlog(req, res) {
   const dateTime = Math.floor(Date.now());
   const slug =
     Math.random().toString(36).substring(2, 8) + "_" + String(dateTime);
-
-  // const data = await query("SELECT * FROM posts WHERE title=$1", [body.title]);
+  const data = await query("SELECT * FROM posts WHERE title=$1", [body.title]);
+  console.log(data.rows, "Rows");
   // if (data.rows.length > 0) {
   //   res.status(403).json({
   //     message: "One user cannot has more than 1 blog that has same title",
@@ -43,7 +43,7 @@ async function addBlog(req, res) {
     [userId, body.title, body.body, slug, body.image_url]
   )
     .then(function (resDb) {
-      res.status(200).json({ message: "A blog is created", data });
+      res.status(200).json({ message: "A blog is created" });
     })
     .catch(function (errDb) {
       res.status(500).json({ message: "Server error", error: errDb });
