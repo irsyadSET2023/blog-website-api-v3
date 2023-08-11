@@ -11,16 +11,16 @@ async function getAllBlog(req, res) {
 
 async function getSingleBlog(req, res) {
   // let id = req.params.id;
-  const slug = req.params.slug;
+  const author_id = req.params.id;
   const data = await query(
-    "SELECT * FROM posts WHERE id=$1 AND deleted_at IS NOT NULL",
-    [slug]
+    "SELECT * FROM posts WHERE author_id=$1 AND deleted_at IS  NULL",
+    [author_id]
   );
   const blogs = data.rows;
   if (!blogs.length) {
     res.status(400).json({ message: "No Blogs Found" });
   } else {
-    res.status(200).json({ blogs });
+    res.status(200).json({ blogs, message: `Blogs from author ${author_id}` });
   }
 }
 
@@ -29,9 +29,15 @@ async function addBlog(req, res) {
   const body = req.body;
   const dateTime = Math.floor(Date.now());
   const slug =
-    body.title.replaceAll(" ", "-").toLowerCase() +
-    `-author_id-${userId}-` +
-    String(dateTime);
+    Math.random().toString(36).substring(2, 8) + "_" + String(dateTime);
+
+  const data = await query("SELECT * FROM posts WHERE title=$1", [body.title]);
+  if (data.rows.length > 0) {
+    res.status(403).json({
+      message: "One user cannot has more than 1 blog that has same title",
+    });
+    return;
+  }
   await query(
     "INSERT INTO posts (author_id,title,body,slug,image_url) VALUES ($1,$2,$3,$4,$5)",
     [userId, body.title, body.body, slug, body.image_url]
@@ -63,13 +69,6 @@ async function updateBlog(req, res) {
     if (key === "title") {
       columns.push(`title = $${paramIndex++}`);
       values.push(value);
-      columns.push(`slug = $${paramIndex++}`);
-      const dateTime = Math.floor(Date.now());
-      const slug =
-        value.replaceAll(" ", "-").toLowerCase() +
-        `-author_id-${userId}-` +
-        String(dateTime);
-      values.push(slug);
     } else {
       columns.push(`${key} = $${paramIndex}`);
       values.push(value);

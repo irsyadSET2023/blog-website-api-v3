@@ -16,6 +16,13 @@ const config = {
 
   jwtSecretToken: process.env["JWT_SECRET_TOKEN"],
   sessionSecretToken: process.env["SESSION_SECRET_TOKEN"],
+  postgres: {
+    host: process.env["POSTGRES_HOST"],
+    port: process.env["POSTGRES_PORT"],
+    username: process.env["POSTGRES_USERNAME"],
+    database: process.env["POSTGRES_DATABASE"],
+    password: process.env["POSTGRES_PASSWORD"],
+  },
 
   clientOrigins: {
     development: process.env["DEV_ORIGIN"] ?? "*",
