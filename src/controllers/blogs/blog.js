@@ -31,19 +31,19 @@ async function addBlog(req, res) {
   const slug =
     Math.random().toString(36).substring(2, 8) + "_" + String(dateTime);
 
-  const data = await query("SELECT * FROM posts WHERE title=$1", [body.title]);
-  if (data.rows.length > 0) {
-    res.status(403).json({
-      message: "One user cannot has more than 1 blog that has same title",
-    });
-    return;
-  }
+  // const data = await query("SELECT * FROM posts WHERE title=$1", [body.title]);
+  // if (data.rows.length > 0) {
+  //   res.status(403).json({
+  //     message: "One user cannot has more than 1 blog that has same title",
+  //   });
+  //   return;
+  // }
   await query(
     "INSERT INTO posts (author_id,title,body,slug,image_url) VALUES ($1,$2,$3,$4,$5)",
     [userId, body.title, body.body, slug, body.image_url]
   )
     .then(function (resDb) {
-      res.status(200).json({ message: "A blog is created" });
+      res.status(200).json({ message: "A blog is created", data });
     })
     .catch(function (errDb) {
       res.status(500).json({ message: "Server error", error: errDb });
