@@ -27,6 +27,3 @@ A `POST` request to `/` will echo any json sent in the request body.
 ## Help out
 
 Feedback and contributions are very welcome.
-# blog-website-api
-# blog-website-api-v2
-# blog-website-api-v2
