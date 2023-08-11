@@ -30,7 +30,7 @@ async function addBlog(req, res) {
   const dateTime = Math.floor(Date.now());
   const slug =
     Math.random().toString(36).substring(2, 8) + "_" + String(dateTime);
-  const data = await query("SELECT * FROM posts WHERE title=$1", [body.title]);
+  // const data = await query("SELECT * FROM posts WHERE title=$1", [body.title]);
   console.log(data.rows, "Rows");
   // if (data.rows.length > 0) {
   //   res.status(403).json({
